@@ -1,6 +1,7 @@
 import express from 'express';
-import router from "express";
-import { Product } from "../product.model.js";
+import { Product } from "../models/product.model.js";
+
+const router = express.Router();
 
 router.get('/api/v1/product*', async (req, res) => {
     // Your logic here
@@ -32,4 +33,5 @@ router.post('/api/v1/product*', (req, res) => {
     
 });
 
-module.exports = router;
+export default router;
+

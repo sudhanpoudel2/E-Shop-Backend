@@ -8,7 +8,8 @@ import { dbConnection } from './DB/database.js';
 const app = express();
 const api = process.env.API_URL;
 
-import productRouter form '../routers/product.router.js'
+import productRouter from './routers/product.routers.js';
+
 
 //middleware
 app.use(bodyParser.json()); 
