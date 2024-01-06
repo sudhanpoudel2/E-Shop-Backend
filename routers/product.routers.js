@@ -3,7 +3,7 @@ import { Product } from "../models/product.model.js";
 
 const router = express.Router();
 
-router.get('/api/v1/product*', async (req, res) => {
+router.get('/', async (req, res) => {
     // Your logic here
     const productList = await Product.find() 
     if(!productList){
@@ -13,7 +13,7 @@ router.get('/api/v1/product*', async (req, res) => {
 });
 
 
-router.post('/api/v1/product*', (req, res) => {
+router.post('/', (req, res) => {
     console.log("Post is working");
     const product = new Product({
         name : req.body.name,
