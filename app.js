@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 app.use(morgan('tiny'));  
 
 app.use('/api/v1/product*',productRouter);
-app.use('/api/v1/category*',categoryRouter);
+app.use('/api/v1/category',categoryRouter);
 
 // import { Product } from './models/product.model.js'; 
 
