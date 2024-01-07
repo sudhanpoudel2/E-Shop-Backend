@@ -12,6 +12,16 @@ router.get('/', async (req, res) => {
     res.send(categoryList);
 });
 
+router.get('/:_id',async (req,res)=>{
+    const category = await Category.findById(req.params._id);
+
+    if(!category){
+        res.status(500).json({message:'The category with given ID does not find'})
+    }
+    res.send(200).send(category);
+
+})
+
 router.post('/',async (req,res)=>{
     console.log("hello");
     let category = new Category({
