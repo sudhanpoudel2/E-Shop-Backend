@@ -39,7 +39,7 @@ router.post('/',async (req,res)=>{
 });
 
 router.put('/:_id',async (req,res)=>{
-    const categoryUpdate = await Category.findByIdAndUpdate(res.params._id,{
+    const categoryUpdate = await Category.findByIdAndUpdate(req.params._id,{
         name : req.body.name,
         icon : req.body.icon,
         color : req.body.color
