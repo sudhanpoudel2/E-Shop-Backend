@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
     // yesto garda product ma product name ra image matra show hunchha and id remove hunchha
-    const productList = await Product.find().select('name image -_id');
+    const productList = await Product.find();
     if(!productList){
         res.status(500).json({success:false})
     }
@@ -15,6 +15,8 @@ router.get('/', async (req, res) => {
 
 //Get request for only one product ID use garera
 router.get('/:_id',async (req,res)=>{
+
+    console.log('hello am i working?');
     const productFind = await Product.findById(req.params._id);
 
     if(!productFind){
@@ -46,14 +48,35 @@ router.post('/', async (req, res) => {
         isFeatured : req.body.isFeatured,
     })
 
-    product = await product.save();
+    const productSave = await product.save();
 
-    if(!product)
+    if(!productSave)
     return res.status(500).send('The product cannot be created')
 
-    return res.send(product);
+    return res.send(productSave);
     
 });
+
+router.put('/:_id',async (req,res)=>{
+    const productUpdate = await Product.findByIdAndUpdate(req.params._id,{
+        name : req.body.name,
+        description : req.body.description,
+        richDescription : req.body.richDescription,
+        image : req.body.image,
+        brand : req.body.brand,
+        price : req.body.price,
+        category : req.body.category,
+        countInStock : req.body.countInStock,
+        rating : req.body.rating,
+        numReviews : req.body.numReviews,
+        isFeatured : req.body.isFeatured,
+    });
+
+    if(!productUpdate)
+    return res.status(400).send('the product can not be created!');
+
+    res.send(productUpdate);
+})
 
 export default router;
 
