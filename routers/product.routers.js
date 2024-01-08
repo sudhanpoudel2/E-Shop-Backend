@@ -5,8 +5,8 @@ import { Category } from '../models/category.model.js';
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    // Your logic here
-    const productList = await Product.find() 
+    // yesto garda product ma product name ra image matra show hunchha and id remove hunchha
+    const productList = await Product.find().select('name image -_id');
     if(!productList){
         res.status(500).json({success:false})
     }
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 
 //Get request for only one product ID use garera
 router.get('/:_id',async (req,res)=>{
-    const productFind = await Product.findById();
+    const productFind = await Product.findById(req.params._id);
 
     if(!productFind){
         res.status(404).json({success:false})
