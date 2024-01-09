@@ -14,6 +14,15 @@ router.get('/', async (req, res) => {
     res.send(productList);
 });
 
+router.get(':_id',(req,res)=>{
+    const productID = Product.findById(req.params._id)
+    if(!productID){
+        res.status(500).json({success:false})
+    }
+
+    res.send(productID);
+})
+
 //Get request for only one product ID use garera
 router.get('/get/count',async (req,res)=>{
 
@@ -21,6 +30,20 @@ router.get('/get/count',async (req,res)=>{
     try {
         const productCount = await Product.countDocuments();
         res.send({ productCount });
+    } catch (error) {
+        console.error('Error getting product count:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+    
+});
+
+router.get('/get/featured/:count',async (req,res)=>{
+
+    console.log('hello am i working?');
+    const count =req.params.count ? req.params.count : 0
+    try {
+        const product = await Product.find({isFeatured : true}).limit(+count) // count value url ma jati deko chha teti matra product dekhaunchha
+        res.send({ product });
     } catch (error) {
         console.error('Error getting product count:', error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
