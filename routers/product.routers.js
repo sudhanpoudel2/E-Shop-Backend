@@ -15,17 +15,18 @@ router.get('/', async (req, res) => {
 });
 
 //Get request for only one product ID use garera
-router.get('/:_id',async (req,res)=>{
+router.get('/get/count',async (req,res)=>{
 
     console.log('hello am i working?');
-    const productFind = await Product.findById(req.params._id);
-
-    if(!productFind){
-        res.status(404).json({success:false})
+    try {
+        const productCount = await Product.countDocuments();
+        res.send({ productCount });
+    } catch (error) {
+        console.error('Error getting product count:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
     
-    res.send(productFind);
-})
+});
 
 
 router.post('/', async (req, res) => {
@@ -42,20 +43,19 @@ router.post('/', async (req, res) => {
         image : req.body.image,
         brand : req.body.brand,
         price : req.body.price,
-        category : req.body.category,
+        category : category,
         countInStock : req.body.countInStock,
         rating : req.body.rating,
         numReviews : req.body.numReviews,
         isFeatured : req.body.isFeatured,
     })
-    const productSave = await product.save();
-
-    if (!productSave) {
-      console.error('Error saving the product:', productSave);
-      return res.status(500).send('The product cannot be created');
-    }
-    
-    return res.send(productSave);
+    try {
+        const productSave = await product.save();
+        return res.status(201).json({ success: true, product: productSave });
+    } catch (error) {
+        console.error('Error saving the product:', error);
+        return res.status(500).json({ success: false, error: 'The product cannot be created' });
+    }    
     
 });
 
