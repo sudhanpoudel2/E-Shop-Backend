@@ -1,6 +1,7 @@
 import express from 'express';
 import { User } from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
+import jwt from 'json-web-token';
 
 const router = express.Router();
 
@@ -43,6 +44,29 @@ router.post('/',async(req,res)=>{
         return res.status(500).json({ success: false, error: 'User cannot be created' });
     }  
     
+});
+
+router.post('/login',async(req,res)=>{
+    const userLogin = await User.findOne({
+        email : req.body.email
+    })
+  if(!userLogin){
+    return res.status(400).send('the user not found')
+  }
+ 
+  if(userLogin && bcrypt.compareSync(req.body.password,userLogin.passwordHash)){
+
+    const token = jwt.sign({
+        userID : userLogin.id
+    })
+    'secret'
+    res.status(202).send({user: userLogin.email , token :token })
+  }else{
+    res.status(400).send('password is wrong')
+  }
+ 
+  res.send(userLogin)
+   
 })
 
 export default router;
