@@ -26,7 +26,7 @@ app.use('/api/v1/user',userRouter);
 // console.log('Received a request to the root endpoint.');
 
 
-app.listen(4000 ,()=>{
+app.listen(3000 ,()=>{
     // console.log(process.env);
-    console.log(`server is running at 4000`);
+    console.log(`server is running at 3000`);
 });

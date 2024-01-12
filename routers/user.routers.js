@@ -47,25 +47,25 @@ router.post('/',async(req,res)=>{
 });
 
 router.post('/login',async(req,res)=>{
-    const userLogin = await User.findOne({
+    const user = await User.findOne({
         email : req.body.email
     })
-  if(!userLogin){
+  if(!user){
     return res.status(400).send('the user not found')
   }
  
-  if(userLogin && bcrypt.compareSync(req.body.password,userLogin.passwordHash)){
+  if(user && bcrypt.compareSync(req.body.password,user.passwordHash)){
 
     const token = jwt.sign({
-        userID : userLogin.id
+        userId : user.id
     })
     'secret'
-    res.status(202).send({user: userLogin.email , token :token })
+    res.status(202).send({user: user.email , token :token })
   }else{
     res.status(400).send('password is wrong')
   }
  
-  res.send(userLogin)
+  res.send(user);
    
 })
 
