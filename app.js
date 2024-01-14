@@ -18,6 +18,12 @@ import awthJwt from './helper/jwt.js';
 app.use(bodyParser.json()); 
 app.use(morgan('tiny')); 
 app.use(awthJwt); 
+app.use((error, req, res, next) => {
+    if (error) {
+        res.status(500).json({ message: 'error in the server' });
+    }
+}); // authentication error handling
+//authentication error handling
 
 app.use('/api/v1/product',productRouter);
 app.use('/api/v1/category',categoryRouter);
