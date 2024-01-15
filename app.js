@@ -12,18 +12,15 @@ import productRouter from './routers/product.routers.js';
 import categoryRouter from './routers/category.routers.js';
 import userRouter from './routers/user.routers.js'
 import awthJwt from './helper/jwt.js';
+import errorHandler from './error handler/error.handler.js';
 
 
 //middleware
 app.use(bodyParser.json()); 
 app.use(morgan('tiny')); 
 app.use(awthJwt); 
-app.use((error, req, res, next) => {
-    if (error) {
-        res.status(500).json({ message: 'error in the server' });
-    }
-}); // authentication error handling
-//authentication error handling
+app.use(errorHandler);
+ 
 
 app.use('/api/v1/product',productRouter);
 app.use('/api/v1/category',categoryRouter);
