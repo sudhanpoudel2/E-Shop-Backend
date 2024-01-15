@@ -12,13 +12,13 @@ import productRouter from './routers/product.routers.js';
 import categoryRouter from './routers/category.routers.js';
 import userRouter from './routers/user.routers.js'
 import awthJwt from './helper/jwt.js';
-import errorHandler from './error handler/error.handler.js';
+import errorHandler from './helper/error.handler.js'
 
 
 //middleware
 app.use(bodyParser.json()); 
 app.use(morgan('tiny')); 
-app.use(awthJwt); 
+app.use(awthJwt()); 
 app.use(errorHandler);
  
 
