@@ -48,10 +48,7 @@ router.post('/',async(req,res)=>{
 });
 
 router.post('/login', async (req, res) => {
-    const user = await User.findOne({
-        email: req.body.email,
-        password : req.body.password
-    });
+    const user = await User.findOne({email: req.body.email });
 
     const secret = process.env.secret;
 
@@ -61,7 +58,8 @@ router.post('/login', async (req, res) => {
 
     if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
         const token = jwt.sign({
-            userId: user.id
+            userId: user.id,
+            isAdmin:user.isAdmin
         }, secret, { expiresIn: '1d' });  // Fix: Correct placement of options
 
         res.status(202).send({ user: user.email, token: token });
