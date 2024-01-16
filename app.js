@@ -12,7 +12,7 @@ import productRouter from './routers/product.routers.js';
 import categoryRouter from './routers/category.routers.js';
 import userRouter from './routers/user.routers.js'
 import awthJwt from './helper/jwt.js';
-import errorHandler from './helper/error.handler.js'
+import errorHandler from './helper/error.handler.js';
 
 
 //middleware

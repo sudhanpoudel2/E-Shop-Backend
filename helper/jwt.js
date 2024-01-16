@@ -6,6 +6,12 @@ function awthJwt() {
     return expressjwt({
         secret,
         algorithms : ['HS512']
+    }).unless({
+        path:[
+            {url : '/api/v1/product', methods: ['GET','OPTIONS']},
+            "/api/v1/user/login",
+            "/api/v1/user/register"
+        ]
     })
 }
 
