@@ -44,11 +44,11 @@ const orderSchema = new Schema({
     }
 },{timestamps:true});
 
-userSchema.virtual('id').get(function(){
+orderSchema.virtual('id').get(function(){
     return this._id.toHexString();
 });
 
-userSchema.set('toJSON',{
+orderSchema.set('toJSON',{
     virtuals:true,
 });
 

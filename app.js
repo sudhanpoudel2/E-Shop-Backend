@@ -13,6 +13,7 @@ import categoryRouter from './routers/category.routers.js';
 import userRouter from './routers/user.routers.js'
 import awthJwt from './helper/jwt.js';
 import errorHandler from './helper/error.handler.js';
+import orderRouter from './routers/order.routers.js'
 
 
 //middleware
@@ -25,6 +26,7 @@ app.use(errorHandler);
 app.use('/api/v1/product',productRouter);
 app.use('/api/v1/category',categoryRouter);
 app.use('/api/v1/user',userRouter);
+app.use('/api/v1/order',orderRouter);
 
 // import { Product } from './models/product.model.js'; 
 
