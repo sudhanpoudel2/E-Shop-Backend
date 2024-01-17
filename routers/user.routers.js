@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 const router = express.Router();
 
 router.get('/',async(req,res)=>{
-    const userList = await User.find().select('-passwordHash');//password na dekhauna 
+    const userList = await User.find()  //.select('-passwordHash');//password na dekhauna 
 
     if(!userList){
          res.status(500).json({success:false})
@@ -47,26 +47,7 @@ router.post('/',async(req,res)=>{
     
 });
 
-router.post('/login', async (req, res) => {
-    const user = await User.findOne({email: req.body.email });
 
-    const secret = process.env.secret;
-
-    if (!user) {
-        return res.status(400).send('The user not found');
-    }
-
-    if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
-        const token = jwt.sign({
-            userId: user.id,
-            isAdmin:user.isAdmin
-        }, secret, { expiresIn: '1d' });  // Fix: Correct placement of options
-
-        res.status(202).send({ user: user.email, token: token });
-    } else {
-        res.status(400).send('Password is wrong');
-    }
-});
 
 router.post('/register',async(req,res)=>{
     const user = new User({
@@ -89,6 +70,30 @@ router.post('/register',async(req,res)=>{
         return res.status(500).json({ success: false, error: 'User cannot be created' });
     }  
     
+});
+router.post('/login', async (req, res) => {
+    const user = await User.findOne({ email: req.body.email });
+
+    console.log('Email:', req.body.email);
+    console.log('Password:', req.body.password);
+
+    const secret = process.env.secret;
+
+    if (!user) {
+        return res.status(400).send('The user not found');
+    }
+
+    // Compare the plain text password from the request with the hashed password from the database
+    if (bcrypt.compareSync(req.body.password, user.passwordHash)) {
+        const token = jwt.sign({
+            userId: user.id,
+            isAdmin: user.isAdmin
+        }, secret, { expiresIn: '1d' });
+
+        res.status(202).send({ user: user.email, token: token });
+    } else {
+        res.status(400).send('Password is wrong');
+    }
 });
 
 

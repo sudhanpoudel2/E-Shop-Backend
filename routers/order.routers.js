@@ -1,5 +1,6 @@
 import express from 'express';
 import { Order } from '../models/order.model.js';
+import { OrderItem } from '../models/orderItem.model.js';
 
 const router = express.Router();
 
@@ -13,10 +14,19 @@ router.get('/',async (req,res)=>{
 
 })
 
-router.post('/',async (req,res)=>{
-    console.log("hello");
+router.post('/', async(req,res)=>{
+    // console.log("hello");
+    const orderItemIds = req.body.orderItem.map(async (orderItem)=>{
+        let newOrderItem = new OrderItem({
+            product:orderItem.product,
+            quantity:orderItem.quantity
+        })
+        newOrderItem = await newOrderItem.save();
+
+        return newOrderItem._id;
+    })
     let order = new Order({
-        orderItem:req.body.orderItem,
+        orderItem:orderItemIds,
         shippingAdderss:req.body.shippingAdderss,
         city:req.body.city,
         zip:req.body.zip,
