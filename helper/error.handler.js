@@ -4,7 +4,7 @@ function errorHandler(error, req, res, next) {
     }
 
     if (error.name === "ValidationError") {
-        return res.status(401).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 
     // Server error

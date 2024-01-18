@@ -19,10 +19,12 @@ function awthJwt() {
 
 async function isRevoked(req, payload, done){
     if(!payload.isAdmin){
-        done(null, true)
+        // Revoke access for non-admin users
+        done(null, true);
+    } else {
+        // Grant access for admin users
+        done();
     }
-
-    done();
 }
 
 export default awthJwt;
