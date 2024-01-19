@@ -18,7 +18,7 @@ function awthJwt() {
     });
 }
 
-// ...
+
 
 async function isRevoked(req, payload, done){
     if(!payload.isAdmin){
