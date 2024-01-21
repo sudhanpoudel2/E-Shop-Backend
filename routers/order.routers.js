@@ -25,7 +25,7 @@ router.post('/', async(req,res)=>{
 
         return newOrderItem._id;
     })
-    let order = new Order({
+    const order = new Order({
         orderItem:orderItemIds,
         shippingAdderss:req.body.shippingAdderss,
         city:req.body.city,
@@ -36,13 +36,13 @@ router.post('/', async(req,res)=>{
         totalPrice:req.body.totalPrice,
         user:req.body.user,
     });
-     order = await order.save();
+     orderSave = await order.save();
 
-    if(!order){
+    if(!orderSave){
         return res.status(400).send('the order cannot be created');
     }
 
-    res.send(category);
+    res.send(orderSave);
 });
 
 export default router;

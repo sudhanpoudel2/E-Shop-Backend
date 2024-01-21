@@ -24,7 +24,8 @@ router.get('/:_id',async (req,res)=>{
     }
 })
 
-router.post('/',async(req,res)=>{
+router.post('/', async(req,res)=>{
+    console.log("user created");
     const user = new User({
         name:req.body.name,
         email:req.body.email,
