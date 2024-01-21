@@ -14,35 +14,39 @@ router.get('/',async (req,res)=>{
 
 })
 
-router.post('/', async(req,res)=>{
+router.post('/', async (req, res) => {
     // console.log("hello");
-    const orderItemIds = req.body.orderItem.map(async (orderItem)=>{
+    const orderItemIds = await Promise.all(req.body.orderItem.map(async (orderItem) => {
         let newOrderItem = new OrderItem({
-            product:orderItem.product,
-            quantity:orderItem.quantity
-        })
+            product: orderItem.product,
+            quantity: orderItem.quantity
+        });
         newOrderItem = await newOrderItem.save();
-
+    
         return newOrderItem._id;
-    })
-    const order = new Order({
-        orderItem:orderItemIds,
-        shippingAdderss:req.body.shippingAdderss,
-        city:req.body.city,
-        zip:req.body.zip,
-        country:req.body.country,
-        phone:req.body.phone,
-        status:req.body.status,
-        totalPrice:req.body.totalPrice,
-        user:req.body.user,
-    });
-     orderSave = await order.save();
+    }));
+    
 
-    if(!orderSave){
-        return res.status(400).send('the order cannot be created');
+    const order = new Order({
+        orderItem: orderItemIds,
+        shippingAdderss: req.body.shippingAdderss,
+        city: req.body.city,
+        zip: req.body.zip,
+        country: req.body.country,
+        phone: req.body.phone,
+        status: req.body.status,
+        totalPrice: req.body.totalPrice,
+        user: req.body.user,
+    });
+
+    const orderSave = await order.save();
+
+    if (!orderSave) {
+        return res.status(400).send('The order cannot be created');
     }
 
     res.send(orderSave);
 });
+
 
 export default router;

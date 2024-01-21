@@ -1,11 +1,7 @@
 import mongoose,{Schema} from "mongoose";
 
 const orderSchema = new Schema({
-    orderItem :[{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "orderItem",
-        required : true
-    }],
+        orderItem: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderItem' }],
     shippingAdderss:{
         type:String,
         required:true
