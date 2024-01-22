@@ -5,7 +5,7 @@ import { OrderItem } from '../models/orderItem.model.js';
 const router = express.Router();
 
 router.get('/',async (req,res)=>{
-    const orderList =await Order.find().populate('user','name');//when i do populate name only i get user name only
+    const orderList =await Order.find().populate('user','name').sort('dateOrder');//when i do populate name only i get user name only
 
     if(!orderList){
         return res.status(500).json({success:false})
