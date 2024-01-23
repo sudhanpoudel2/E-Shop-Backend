@@ -48,5 +48,35 @@ router.post('/', async (req, res) => {
     res.send(orderSave);
 });
 
+router.put('/:_id',async (req,res)=>{
+    const order = await Order.findByIdAndUpdate(req.params._id,{
+        status:req.body.status
+    });
+
+    if(!order)
+    return res.status(400).send('the order can not be created!');
+
+    res.send(order);
+})
+
+router.delete('/:_id', async (req, res) => {
+    Order.findByIdAndDelete(req.params._id).then(async order =>{
+        if(order){
+            await order.orderItem.map(async orderItem =>{
+                await OrderItem.findByIdAndDelete(orderItem)
+            })
+            return res.status(200).json({success:true,message:"the orderItem was deleted!"});
+        }else{
+            return res.status(404).json({success:false,message:"order is not deleted"})
+        }
+    }).catch(err=>{
+        return res.status(500).json({success:false,error:err})
+    })
+
+})
+    // console.log("Received delete request for ID:", req.params._id);
+
+ 
+
 
 export default router;
