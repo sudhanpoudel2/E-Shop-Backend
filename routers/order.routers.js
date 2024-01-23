@@ -1,6 +1,8 @@
 import express from 'express';
 import { Order } from '../models/order.model.js';
 import { OrderItem } from '../models/orderItem.model.js';
+// import { Promise } from 'mongoose';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -25,7 +27,15 @@ router.post('/', async (req, res) => {
     
         return newOrderItem._id;
     }));
-    
+    const orderItemIdsResolved = await orderItemIds;
+
+const totalPrices = await Promise.all(orderItemIdsResolved.map(async (orderItemId) => {
+    const orderItem = await OrderItem.findById(orderItemId).populate('product', 'price');
+    const totalPrice = orderItem.product.price * orderItem.quantity;
+    return totalPrice;
+}));
+
+console.log(totalPrices);
 
     const order = new Order({
         orderItem: orderItemIds,
@@ -35,7 +45,7 @@ router.post('/', async (req, res) => {
         country: req.body.country,
         phone: req.body.phone,
         status: req.body.status,
-        totalPrice: req.body.totalPrice,
+        totalPrice: totalPrices.reduce((acc, price) => acc + price, 0), 
         user: req.body.user,
     });
 
@@ -76,7 +86,43 @@ router.delete('/:_id', async (req, res) => {
 })
     // console.log("Received delete request for ID:", req.params._id);
 
- 
+ router.get('/get/total',async(req,res)=>{
+    const totalSales = await Order.aggregate([
+        {$group:{_id:null, totalSales:{$sum:'totalPrices'}}}
+    ])
+    if(!totalSales){
+        return res.status(400).send('the total order sale cannot be grneate')
+    }
+
+    res.send(totalSales);
+ })
+
+ router.get('/get/count',async (req,res)=>{
+
+    console.log('hello am i working?');
+    try {
+        const orderCount = await Order.countDocuments();
+        res.send({ orderCount });
+    } catch (error) {
+        console.error('Error getting order count:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+    
+});
+
+router.get('/get/userorder/:userid',async (req,res)=>{
+    const userOrderList =await Order.find({user:req.params.userid}).populate({
+        path:'orderItems',populate:{
+            path:'product',populate:'category'
+        }
+    }).sort('dateOrder');//when i do populate name only i get user name only
+
+    if(!userOrderList){
+        return res.status(500).json({success:false})
+    }
+    res.send(userOrderList);
+
+})
 
 
 export default router;
