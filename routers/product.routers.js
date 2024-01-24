@@ -3,13 +3,26 @@ import { Product } from "../models/product.model.js";
 import { Category } from '../models/category.model.js';
 import multer from 'multer';
 
+const FILE_TYPE_MAP = {
+    'image/png':'png',
+    'image/jpeg':'jpeg',
+    'image/jpg':'jpg'
+}
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'public/upload')
+        const isValid = FILE_TYPE_MAP[file.mimetype];
+        let uploadError = new Error('invalid image type');
+
+        if(isValid){
+            uploadError : null
+        }
+      cb(uploadError, 'public/upload')
     },
     filename: function (req, file, cb) {
-      const fileName = file.originalname.split(' ').join('_') 
-      cb(null,fileName + '-' + Date.now())
+      const fileName = file.originalname.split(' ').join('_') ;
+      const extension = FILE_TYPE_MAP[file.mimetype];
+      cb(null,`${fileName}-${Date.now()}.${extension}`)
     }
   })
   
