@@ -1,6 +1,20 @@
 import express from 'express';
 import { Product } from "../models/product.model.js";
 import { Category } from '../models/category.model.js';
+import multer from 'multer';
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'public/upload')
+    },
+    filename: function (req, file, cb) {
+      const fileName = file.originalname.split(' ').join('_') 
+      cb(null,fileName + '-' + Date.now())
+    }
+  })
+  
+  const uploadOption = multer({ storage: storage })
+
 
 const router = express.Router();
 import mongoose from 'mongoose';
@@ -52,18 +66,19 @@ router.get('/get/featured/:count',async (req,res)=>{
 });
 
 
-router.post('/', async (req, res) => {
+router.post('/',uploadOption.single('image'), async (req, res) => {
     console.log("Post is working");
 
     //catetory ID bata (category aanushar product add garne) product add garne
     const category = await Category.findById(req.body.category);
     if(!category) return res.status(404).send('Invalid Category');
-
+    const fileName = req.body.filename;
+    const basePath = `${req.protocol}://${req.get('host')}/public/upload/`;
     const product = new Product({
         name : req.body.name,
         description : req.body.description,
         richDescription : req.body.richDescription,
-        image : req.body.image,
+        image : `${basePath}${fileName}`,
         brand : req.body.brand,
         price : req.body.price,
         category : category,
