@@ -85,6 +85,10 @@ router.post('/',uploadOption.single('image'), async (req, res) => {
     //catetory ID bata (category aanushar product add garne) product add garne
     const category = await Category.findById(req.body.category);
     if(!category) return res.status(404).send('Invalid Category');
+
+    const file = req.file;
+    if(!file) return res.status(404).send('No image in request');
+
     const fileName = req.body.filename;
     const basePath = `${req.protocol}://${req.get('host')}/public/upload/`;
     const product = new Product({
@@ -151,6 +155,9 @@ router.delete('/:_id', async (req, res) => {
     }
 });
 
+router.put('/gallery-image/:_id',uploadOption.array('images',10),async(req,res)=>{
+
+})
 
 export default router;
 
