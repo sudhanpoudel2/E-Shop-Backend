@@ -157,6 +157,26 @@ router.delete('/:_id', async (req, res) => {
 
 router.put('/gallery-image/:_id',uploadOption.array('images',10),async(req,res)=>{
 
+    if(!mongoose.isValidObjectId(req.params._id)){
+        return res.status(500).send('Invalid Product Id');
+   }
+
+   const files = req.files;
+   let imagePaths = [];
+   const basePath = `${req.protocol}://${req.get('host')}/public/upload/`;
+   if(files){
+    files.map(file=>{
+        imagePaths.push(`${basePath}${file.fileName}`)
+    })
+   }
+   const productUpdate = await Product.findByIdAndUpdate(req.params._id,
+    {
+    images: imagePaths
+    });
+          if(!productUpdate)
+          return res.status(400).send('the product can not be created!');
+
+          res.send(productUpdate);
 })
 
 export default router;
