@@ -22,6 +22,7 @@ app.use('/api/v1/user', userRouter);
 app.use('/api/v1/order', orderRouter);
 
 app.use(awthJwt());
+app.use('/public/upload',express.static(__dirname+'/public/upload'))
 app.use(errorHandler);
 
 app.listen(3000, () => {
