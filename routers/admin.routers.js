@@ -1,5 +1,5 @@
 import express from "express";
-import { User } from "../models/user.model.js";
+import { User } from "../models/admin.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -80,24 +80,22 @@ router.post("/register", async (req, res) => {
 });
 router.post("/login", async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
-  const secret = process.env.SECRET;
 
-  console.log("Email:", req.body.email);
-  console.log("Password:", req.body.password);
+  const secret = "thedogisbeautiful";
 
   if (!user) {
     return res.status(400).send("The user not found");
   }
 
   // Compare the plain text password from the request with the hashed password from the database
-  if (bcrypt.compareSync(req.body.password, user.passwordHash)) {
+  if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
     const token = jwt.sign(
       {
         userId: user.id,
-        isAdmin: user.isAdmin,
+        isAdmin: true,
       },
-      secret, // Passing the secret directly as a string
-      { expiresIn: "1d" }
+      secret // Passing the secret directly as a string
+      // { expiresIn: "1d" }
     );
 
     res.status(202).send({ user: user.email, token: token });
