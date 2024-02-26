@@ -31,6 +31,41 @@ const uploadOption = multer({ storage: storage });
 const router = express.Router();
 import mongoose from "mongoose";
 
+router.get("/pag", async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 1;
+    const search = req.query.search || "";
+    // let sort = req.query.sort || "rating";
+    // let genre = req.query.genre || "All";
+
+    const productShow = await Product.find({
+      $or: [
+        // { category: { $regex: category, $options: "i" } },
+        { name: { $regex: search, $options: "i" } },
+      ],
+    })
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+
+    const count = await Product.find({
+      $or: [
+        // { category: { $regex: category, $options: "i" } },
+        { name: { $regex: search, $options: "i" } },
+      ],
+    }).countDocuments();
+
+    res.send({
+      product: productShow,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
 router.get("/", async (req, res) => {
   // yesto garda product ma product name ra image matra show hunchha and id remove hunchha
   const productList = await Product.find();

@@ -6,12 +6,13 @@ import { dbConnection } from "./DB/database.js";
 import productRouter from "./routers/product.routers.js";
 import categoryRouter from "./routers/category.routers.js";
 import adminRouter from "./routers/admin.routers.js";
+import cartRouter from "./routers/cart.routers.js";
 import customerRouter from "./routers/customer.router.js";
 import awthJwt from "./helper/jwt.js";
 
 // import cors from "cors";
 // import errorHandler from "./helper/error.handler.js";
-import orderRouter from "./routers/order.routers.js";
+import orderRouter from "./routers/cart.routers.js";
 
 dotenv.config({
   path: "",
@@ -28,6 +29,7 @@ app.use(morgan("tiny"));
 // app.use(awthJwt());
 
 //routes
+app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/admin", adminRouter);

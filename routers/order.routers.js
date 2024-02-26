@@ -1,24 +1,37 @@
 import express from "express";
 import { Order } from "../models/order.model.js";
 import { OrderItem } from "../models/orderItem.model.js";
-// import { Promise } from 'mongoose';
-import mongoose from "mongoose";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  const orderList = await Order.find()
-    .populate("user", "name")
-    .sort("dateOrder"); //when i do populate name only i get user name only
+let cart = [];
 
-  if (!orderList) {
-    return res.status(500).json({ success: false });
-  }
-  res.send(orderList);
-});
+// router.get("/cart/:_id", async (req, res) => {
+//   const orderCart = await User.findById(req.params._id);
+// });
+
+// router.get("/", async (req, res) => {
+//   try {
+//     const cartItems = await OrderItem.find({
+//       customerId: req.customer._id,
+//     }).populate("productId");
+//     res.json(cartItems);
+//   } catch (error) {
+//     console.error("Error fetching cart:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+//   // const orderList = await Order.find()
+//   //   .populate("user", "name")
+//   //   .sort("dateOrder"); //when i do populate name only i get user name only
+
+//   // if (!orderList) {
+//   //   return res.status(500).json({ success: false });
+//   // }
+//   // res.send(orderList);
+// });
 
 router.post("/", async (req, res) => {
-  // console.log("hello");
+  console.log("hello", req.body);
   const orderItemIds = await Promise.all(
     req.body.orderItem.map(async (orderItem) => {
       let newOrderItem = new OrderItem({
@@ -55,6 +68,7 @@ router.post("/", async (req, res) => {
     status: req.body.status,
     totalPrice: totalPrices.reduce((acc, price) => acc + price, 0),
     customer: req.body.customer,
+    contact: req.body.contact,
   });
 
   const orderSave = await order.save();

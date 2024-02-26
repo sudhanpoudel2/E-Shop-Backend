@@ -16,7 +16,6 @@ const customerSchema = new Schema(
     password: {
       type: String,
       required: [true, "Passcode is required"],
-      // minlength: [6, "passwoed length should be minimum 6 character"],
     },
     contact: {
       type: Number,
