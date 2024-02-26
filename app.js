@@ -6,7 +6,7 @@ import { dbConnection } from "./DB/database.js";
 import productRouter from "./routers/product.routers.js";
 import categoryRouter from "./routers/category.routers.js";
 import adminRouter from "./routers/admin.routers.js";
-import cartRouter from "./routers/cart.routers.js";
+import cart from "./routers/cart.routers.js";
 import customerRouter from "./routers/customer.router.js";
 import awthJwt from "./helper/jwt.js";
 
@@ -20,6 +20,10 @@ dotenv.config({
 
 const app = express();
 // const api = process.env.API_URL;
+app.get("*", function (req, res, next) {
+  res.locals.cart = req.session.cart;
+  next();
+});
 
 // app.use(cors());
 // app.options("*", cors());
@@ -29,7 +33,7 @@ app.use(morgan("tiny"));
 // app.use(awthJwt());
 
 //routes
-app.use("/api/v1/cart", cartRouter);
+app.use("/api/v1/cart", cart);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/admin", adminRouter);
