@@ -5,6 +5,8 @@ function authJwt() {
   return expressjwt({
     secret,
     algorithms: ["HS256"],
+  }).unless({
+    path: [`/api/v1/customer/login`, `/api/v1/customer/register`],
   });
 }
 

@@ -1,49 +1,127 @@
-import express from "express";
-// import Cart from "../models/cart.model.js";
-// import Product from "../models/product.model.js";
+import cartRepository from "../middleware/repository.js";
 import { Product } from "../models/product.model.js";
+import express from "express";
+import Cart from "../models/cart.model.js";
 
 const router = express.Router();
 
-router.get("/add/:_product", function (req, res) {
-  const cartFind = req.params._product;
+import authJwt from "../helper/jwt.js";
 
-  Product.findOne({ cartFind: cartFind }, function (err, product) {
-    if (err) {
-      res.send(err);
-    }
-    if (typeof req.session.cart == "undefined") {
-      req.session.cart = [];
-      req.session.cart.push({
-        title: cartFind,
-        quantity: 1,
-        price: parseFloat(product.price).toFixed(2),
-        image: "/product/image/" + product._id + "/" + product.image,
+router.use(authJwt());
+
+router.post("/", async (req, res) => {
+  const { productId } = req.body;
+  const quantity = Number.parseInt(req.body.quantity);
+  try {
+    let cart = await cartRepository.cart();
+    let productDetails = await Product.productById(productId);
+    if (!productDetails) {
+      return res.status(500).json({
+        type: "Not Found",
+        msg: "Invalid request",
       });
-    } else {
-      let cart = req.session.cart;
-      let newItem = true;
-
-      for (let i = 0; i < cart.length; i++) {
-        if (cart[i].title == cartFind) {
-          cart[i].quantity++;
-          newItem = false;
-          break;
+    }
+    //--If Cart Exists ----
+    if (cart) {
+      //---- Check if index exists ----
+      const indexFound = cart.items.findIndex(
+        (item) => item.productId.id == productId
+      );
+      //------This removes an item from the the cart if the quantity is set to zero, We can use this method to remove an item from the list  -------
+      if (indexFound !== -1 && quantity <= 0) {
+        cart.items.splice(indexFound, 1);
+        if (cart.items.length == 0) {
+          cart.subTotal = 0;
+        } else {
+          cart.subTotal = cart.items
+            .map((item) => item.total)
+            .reduce((acc, next) => acc + next);
         }
       }
-      if (newItem) {
-        cart.push({
-          title: cartFind,
-          quantity: 1,
-          price: parseFloat(product.price).toFixed(2),
-          image: "/product/image/" + product._id + "/" + product.image,
+      //----------Check if product exist, just add the previous quantity with the new quantity and update the total price-------
+      else if (indexFound !== -1) {
+        cart.items[indexFound].quantity = quantity; //cart.items[indexFound].quantity + quantity;
+        cart.items[indexFound].total =
+          cart.items[indexFound].quantity * productDetails.price;
+        cart.items[indexFound].price = productDetails.price;
+        cart.subTotal = cart.items
+          .map((item) => item.total)
+          .reduce((acc, next) => acc + next);
+      }
+      //----Check if quantity is greater than 0 then add item to items array ----
+      else if (quantity > 0) {
+        cart.items.push({
+          productId: productId,
+          quantity: quantity,
+          price: productDetails.price,
+          total: parseInt(productDetails.price * quantity),
+        });
+        cart.subTotal = cart.items
+          .map((item) => item.total)
+          .reduce((acc, next) => acc + next);
+      }
+      //----If quantity of price is 0 throw the error -------
+      else {
+        return res.status(400).json({
+          type: "Invalid",
+          msg: "Invalid request",
         });
       }
+      let data = await cart.save();
+      res.status(200).json({
+        type: "success",
+        mgs: "Process successful",
+        data: data,
+      });
     }
-    console.log(req.session.cart);
-    req.flash("success", "Product added");
-    res.redirect("back");
-  });
+    //------------ This creates a new cart and then adds the item to the cart that has been created------------
+    else {
+      const cartData = {
+        items: [
+          {
+            productId: productId,
+            quantity: quantity,
+            total: parseInt(productDetails.price * quantity),
+            price: productDetails.price,
+          },
+        ],
+        subTotal: parseInt(productDetails.price * quantity),
+      };
+      cart = await cartRepository.addItem(cartData);
+      // let data = await cart.save();
+      res.json(cart);
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      type: "Invalid",
+      msg: "Something went wrong",
+      err: err,
+    });
+  }
+});
+
+router.get("/", async (req, res) => {
+  try {
+    const cart = await cartRepository.cart();
+    if (!cart) {
+      res.status(400).json({
+        type: "Invalid",
+        msg: "Cart not Found",
+      });
+    }
+    res.status(200).json({
+      status: true,
+      data: cart,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      type: "Invalid",
+      msg: "Something went wrong",
+      err: err,
+    });
+  }
 });
 
 export default router;
