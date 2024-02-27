@@ -1,18 +1,48 @@
 import cartRepository from "../middleware/repository.js";
 import { Product } from "../models/product.model.js";
 import express from "express";
+import { Customer } from "../models/customer.model.js";
+import jwt from "jsonwebtoken";
+
 import Cart from "../models/cart.model.js";
 
 const router = express.Router();
 
-import authJwt from "../helper/jwt.js";
+// import authJwt from "../helper/jwt.js";
+// router.use(authJwt());
 
-router.use(authJwt());
+const fetchCustomer = async (req, res, next) => {
+  const token = req.header("authorization");
+  // const token = jwt.sign(
+  //   {
+  //     customerId: req.body.costomerId,
+  //   },
+  //   "thedogisbeautiful"
+  // );
+  if (!token) {
+    res.status(401).send({ error: " Unvalid token" });
+  } else {
+    try {
+      const data = jwt.verify(token);
+      req.customer = data.customer;
+      next();
+    } catch (error) {
+      res.status(401).send({ error: "Please authenticate using valid token" });
+    }
+  }
+};
 
-router.post("/", async (req, res) => {
+router.post("/addToCart", fetchCustomer, async (req, res) => {
+  const { customerId } = req.body;
   const { productId } = req.body;
   const quantity = Number.parseInt(req.body.quantity);
   try {
+    let customerData = await Customer.findOne({ _id: req.customer.id });
+    customerData.cartData[req.body.itemId] += 1;
+    await Customer.findByIdAndUpdate(
+      { _id: req.customer.id },
+      { cartData: customerData.cartData }
+    );
     let cart = await cartRepository.cart();
     let productDetails = await Product.productById(productId);
     if (!productDetails) {
@@ -101,7 +131,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", fetchCustomer, async (req, res) => {
   try {
     const cart = await cartRepository.cart();
     if (!cart) {
