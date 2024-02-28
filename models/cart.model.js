@@ -5,10 +5,6 @@ let ItemSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
     },
-    customerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Customer",
-    },
     quantity: {
       type: Number,
       required: true,
@@ -27,12 +23,17 @@ let ItemSchema = new Schema(
     timestamps: true,
   }
 );
+
 const CartSchema = new Schema(
   {
     items: [ItemSchema],
     subTotal: {
       default: 0,
       type: Number,
+    },
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
     },
   },
   {

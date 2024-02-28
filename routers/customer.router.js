@@ -16,17 +16,17 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
-  const cartItem = await Promise.all(
-    req.body.orderItem.map(async (orderItem) => {
-      let newOrderItem = new OrderItem({
-        product: orderItem.product,
-        quantity: orderItem.quantity,
-      });
-      newOrderItem = await newOrderItem.save();
+  // const cartItem = await Promise.all(
+  //   req.body.orderItem.map(async (orderItem) => {
+  //     let newOrderItem = new OrderItem({
+  //       product: orderItem.product,
+  //       quantity: orderItem.quantity,
+  //     });
+  //     newOrderItem = await newOrderItem.save();
 
-      return newOrderItem._id;
-    })
-  );
+  //     return newOrderItem._id;
+  //   })
+  // );
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -36,7 +36,7 @@ router.post("/register", async (req, res) => {
       password: hashedPassword,
       contact: req.body.contact,
       address: req.body.address,
-      cart: cartItem,
+      // cart: req.body.cart,
     });
 
     const customerSave = await customer.save();
@@ -52,6 +52,7 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  // const customerId = req.body;
 
   try {
     const customer = await Customer.findOne({ email });
@@ -69,8 +70,13 @@ router.post("/login", async (req, res) => {
         },
         "thedogisbeautiful"
       );
-
-      return res.status(202).send({ customer: customer.email, token: token });
+      // const accessToken = await generateAccessTOken({ customer: customer });
+      return res.status(202).send({
+        customer: customer.email,
+        token: token,
+        // customer: customer,
+        // accessToken: accessToken,
+      });
     } else {
       return res.status(400).send("Password is wrong");
     }
