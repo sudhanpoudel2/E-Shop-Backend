@@ -2,6 +2,7 @@ import express from "express";
 import { Customer } from "../models/customer.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { OrderItem } from "../models/orderItem.model.js";
 
 const router = express.Router();
 
@@ -15,6 +16,17 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
+  const cartItem = await Promise.all(
+    req.body.orderItem.map(async (orderItem) => {
+      let newOrderItem = new OrderItem({
+        product: orderItem.product,
+        quantity: orderItem.quantity,
+      });
+      newOrderItem = await newOrderItem.save();
+
+      return newOrderItem._id;
+    })
+  );
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -24,6 +36,7 @@ router.post("/register", async (req, res) => {
       password: hashedPassword,
       contact: req.body.contact,
       address: req.body.address,
+      cart: cartItem,
     });
 
     const customerSave = await customer.save();

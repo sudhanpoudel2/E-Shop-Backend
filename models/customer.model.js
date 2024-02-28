@@ -25,6 +25,7 @@ const customerSchema = new Schema(
       type: String,
       required: [true, "address is required"],
     },
+    cart: [{ type: mongoose.Schema.Types.ObjectId, ref: "OrderItem" }],
   },
   { timestamps: true }
 );

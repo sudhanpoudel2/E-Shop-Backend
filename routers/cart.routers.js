@@ -2,48 +2,103 @@ import cartRepository from "../middleware/repository.js";
 import { Product } from "../models/product.model.js";
 import express from "express";
 import { Customer } from "../models/customer.model.js";
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
+import authJwt from "../helper/jwt.js";
 
 import Cart from "../models/cart.model.js";
 
 const router = express.Router();
 
+router.use(authJwt());
+
+/*router.post("/cart", async (req, res) => {
+  // const customerId = req.customer._id;
+  const customerId = req.body.customerId;
+  const { productId, quantity } = req.body;
+  try {
+    const cart = await Cart.findOne({ customerId });
+    const product = await Product.findOne({ _id: productId });
+    if (!product) {
+      res.status(404).send({ message: "product not found" });
+      return;
+    }
+    const price = product.price;
+    const name = product.name;
+    //If cart already exists for customer,
+    if (cart) {
+      const productIndex = cart.products.findIndex(
+        (product) => product.productId == productId
+      );
+      //check if product exists or not
+      if (productIndex > -1) {
+        let product = cart.products[productIndex];
+        product.quantity += quantity;
+        cart.bill = cart.products.reduce((acc, curr) => {
+          return acc + curr.quantity * curr.price;
+        }, 0);
+        cart.products[productIndex] = product;
+        await cart.save();
+        res.status(200).send(cart);
+      } else {
+        cart.products.push({ productId, name, quantity, price });
+        cart.bill = cart.products.reduce((acc, curr) => {
+          return acc + curr.quantity * curr.price;
+        }, 0);
+        await cart.save();
+        res.status(200).send(cart);
+      }
+    } else {
+      //no cart exists, create one
+      const newCart = await Cart.create({
+        customerId,
+        products: [{ productId, name, quantity, price }],
+        bill: quantity * price,
+      });
+      return res.status(201).send(newCart);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("something went wrong");
+  }
+});*/
+
 // import authJwt from "../helper/jwt.js";
 // router.use(authJwt());
 
-const fetchCustomer = async (req, res, next) => {
-  const token = req.header("authorization");
-  // const token = jwt.sign(
-  //   {
-  //     customerId: req.body.costomerId,
-  //   },
-  //   "thedogisbeautiful"
-  // );
-  if (!token) {
-    res.status(401).send({ error: " Unvalid token" });
-  } else {
-    try {
-      const data = jwt.verify(token);
-      req.customer = data.customer;
-      next();
-    } catch (error) {
-      res.status(401).send({ error: "Please authenticate using valid token" });
-    }
-  }
-};
+// const fetchCustomer = async (req, res, next) => {
+//   const token = req.header("authorization");
+//   // const token = jwt.sign(
+//   //   {
+//   //     customerId: req.body.costomerId,
+//   //   },
+//   //   "thedogisbeautiful"
+//   // );
+//   if (!token) {
+//     res.status(401).send({ error: " Unvalid token" });
+//   } else {
+//     try {
+//       const data = jwt.verify(token);
+//       req.customer = data.customer;
+//       next();
+//     } catch (error) {
+//       res.status(401).send({ error: "Please authenticate using valid token" });
+//     }
+//   }
+// };
 
-router.post("/addToCart", fetchCustomer, async (req, res) => {
+router.post("/addToCart", async (req, res) => {
   const { customerId } = req.body;
   const { productId } = req.body;
   const quantity = Number.parseInt(req.body.quantity);
   try {
-    let customerData = await Customer.findOne({ _id: req.customer.id });
-    customerData.cartData[req.body.itemId] += 1;
-    await Customer.findByIdAndUpdate(
-      { _id: req.customer.id },
-      { cartData: customerData.cartData }
-    );
-    let cart = await cartRepository.cart();
+    // let customerData = await Customer.findOne({ _id: req.customer.id });
+    // customerData.cartData[req.body.itemId] += 1;
+    // await Customer.findByIdAndUpdate(
+    //   { _id: req.customer.id },
+    //   { cartData: customerData.cartData }
+    // );
+    // let cart = await cartRepository.cart();
+    const cart = await Cart.findOne({ customerId });
     let productDetails = await Product.productById(productId);
     if (!productDetails) {
       return res.status(500).json({
@@ -81,6 +136,7 @@ router.post("/addToCart", fetchCustomer, async (req, res) => {
       //----Check if quantity is greater than 0 then add item to items array ----
       else if (quantity > 0) {
         cart.items.push({
+          // customerId:customerId,
           productId: productId,
           quantity: quantity,
           price: productDetails.price,
@@ -109,6 +165,7 @@ router.post("/addToCart", fetchCustomer, async (req, res) => {
       const cartData = {
         items: [
           {
+            // customerId:customerId,
             productId: productId,
             quantity: quantity,
             total: parseInt(productDetails.price * quantity),
@@ -131,7 +188,7 @@ router.post("/addToCart", fetchCustomer, async (req, res) => {
   }
 });
 
-router.get("/", fetchCustomer, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const cart = await cartRepository.cart();
     if (!cart) {

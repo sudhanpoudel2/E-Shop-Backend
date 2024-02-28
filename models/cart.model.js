@@ -5,6 +5,10 @@ let ItemSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
     },
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
+    },
     quantity: {
       type: Number,
       required: true,
