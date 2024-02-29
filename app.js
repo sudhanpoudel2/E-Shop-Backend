@@ -13,7 +13,7 @@ import awthJwt from "./helper/jwt.js";
 // import session, { Session } from "express-session";
 
 // import cors from "cors";
-// import errorHandler from "./helper/error.handler.js";
+import errorHandler from "./helper/error.handler.js";
 import orderRouter from "./routers/cart.routers.js";
 
 dotenv.config({
@@ -21,19 +21,11 @@ dotenv.config({
 });
 
 const app = express();
-// // const api = process.env.API_URL;
-// app.get("*", function (req, res, next) {
-//   res.locals.cart = req.session.cart;
-//   next();
-// });
 
-// app.use(cors());
-// app.options("*", cors());
-// Middleware
 app.use(bodyParser.json());
 app.use(morgan("tiny"));
-
 app.use(awthJwt());
+app.use(errorHandler);
 
 //routes
 app.use("/api/v1/cart", cartRouter);

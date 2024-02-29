@@ -78,30 +78,30 @@ router.post("/register", async (req, res) => {
       .json({ success: false, error: "User cannot be created" });
   }
 });
-router.post("/login", async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
+// router.post("/login", async (req, res) => {
+//   const user = await User.findOne({ email: req.body.email });
 
-  const secret = "thedogisbeautiful";
+//   const secret = "thedogisbeautiful";
 
-  if (!user) {
-    return res.status(400).send("The user not found");
-  }
+//   if (!user) {
+//     return res.status(400).send("The user not found");
+//   }
 
-  // Compare the plain text password from the request with the hashed password from the database
-  if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        isAdmin: true,
-      },
-      secret // Passing the secret directly as a string
-      // { expiresIn: "1d" }
-    );
+//   // Compare the plain text password from the request with the hashed password from the database
+//   if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
+//     const token = jwt.sign(
+//       {
+//         userId: user.id,
+//         isAdmin: true,
+//       },
+//       secret // Passing the secret directly as a string
+//       // { expiresIn: "1d" }
+//     );
 
-    res.status(202).send({ user: user.email, token: token });
-  } else {
-    res.status(400).send("Password is wrong");
-  }
-});
+//     res.status(202).send({ user: user.email, token: token });
+//   } else {
+//     res.status(400).send("Password is wrong");
+//   }
+// });
 
 export default router;

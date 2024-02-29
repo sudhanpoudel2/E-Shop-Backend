@@ -1,15 +1,16 @@
-// function errorHandler(error, req, res, next) {
-//     if (error.name === "UnauthorizedError") {
-//         return res.status(401).json({ message: "The user is not authorized" });
-//     }
+function errorHandler(err, req, res, next) {
+  if (err.name === "UnauthorizedError") {
+    // jwt authentication error
+    return res.status(401).json({ message: err });
+  }
 
-//     if (error.name === "ValidationError") {
-//         return res.status(400).json({ message: error.message });
-//     }
+  if (err.name === "ValidationError") {
+    //  validation error
+    return res.status(401).json({ message: err });
+  }
 
-//     // Server error
-//     console.error(error); // Log the error for debugging
-//     return res.status(500).json({ message: 'Internal Server Error' });
-// }
+  // default to 500 server error
+  return res.status(500).json({ message: err });
+}
 
-// export default errorHandler;
+export default errorHandler;

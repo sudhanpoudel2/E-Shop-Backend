@@ -3,10 +3,11 @@ import { Customer } from "../models/customer.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { OrderItem } from "../models/orderItem.model.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   const customer = await Customer.find();
 
   if (!customer) {
@@ -16,22 +17,11 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
-  // const cartItem = await Promise.all(
-  //   req.body.orderItem.map(async (orderItem) => {
-  //     let newOrderItem = new OrderItem({
-  //       product: orderItem.product,
-  //       quantity: orderItem.quantity,
-  //     });
-  //     newOrderItem = await newOrderItem.save();
-
-  //     return newOrderItem._id;
-  //   })
-  // );
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     const customer = new Customer({
-      fullname: req.body.fullname,
+      name: req.body.name,
       email: req.body.email,
       password: hashedPassword,
       contact: req.body.contact,
@@ -66,10 +56,12 @@ router.post("/login", async (req, res) => {
     if (passwordMatch) {
       const token = jwt.sign(
         {
-          customerID: customer.id,
+          customerId: customer._id,
+          isAdmin: customer.isAdmin,
         },
         "thedogisbeautiful"
       );
+      console.log(customer._id);
       // const accessToken = await generateAccessTOken({ customer: customer });
       return res.status(202).send({
         customer: customer.email,

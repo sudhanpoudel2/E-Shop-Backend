@@ -3,7 +3,7 @@ import validator from "validator";
 
 const customerSchema = new Schema(
   {
-    fullname: {
+    name: {
       type: String,
       required: [true, "fullname is required"],
     },
@@ -25,7 +25,11 @@ const customerSchema = new Schema(
       type: String,
       required: [true, "address is required"],
     },
-    cart: [{ type: mongoose.Schema.Types.ObjectId, ref: "Cart" }],
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    // cart: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   },
   { timestamps: true }
 );

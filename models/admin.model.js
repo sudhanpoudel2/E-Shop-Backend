@@ -20,6 +20,7 @@ const userSchema = new Schema(
     },
     isAdmin: {
       type: Boolean,
+      default: true,
     },
     street: {
       type: String,

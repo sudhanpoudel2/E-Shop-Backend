@@ -3,44 +3,21 @@ import { Product } from "../models/product.model.js";
 import express from "express";
 import { Customer } from "../models/customer.model.js";
 // import jwt from "jsonwebtoken";
-import auth from "../middleware/auth.js";
+// import auth from "../middleware/auth.js";
 
 import Cart from "../models/cart.model.js";
-import { token } from "morgan";
+// import { token } from "morgan";
+// import authJwt from "../helper/jwt.js";
 
 const router = express.Router();
 
-router.post("/addToCart/:_id", auth, async (req, res) => {
-  // const { customerId } = req.params._id;
+router.post("/addToCart", async (req, res) => {
+  const { customerId } = req.body;
   const { productId } = req.body;
   const quantity = Number.parseInt(req.body.quantity);
-
   try {
-    // Find the customer
-    const customerId = await Customer.findById(req.params._id);
-
-    if (!customerId) {
-      return res.status(404).json({
-        type: "Not Found",
-        msg: "Customer not found",
-      });
-    }
-
-    // Check if the customer already has a cart
-    let cart = await Cart.findOne({ customerId });
-
-    if (!cart) {
-      // If the customer doesn't have a cart, create a new one
-      const cartData = {
-        customerId: customerId,
-        items: [],
-        subTotal: 0,
-      };
-      cart = await Cart.create(cartData);
-    }
-
-    // Get product details
-    const productDetails = await Product.productById(productId);
+    let cart = await Cart.findOne(customerId);
+    let productDetails = await Product.productById(productId);
 
     if (!productDetails) {
       return res.status(500).json({
@@ -49,35 +26,51 @@ router.post("/addToCart/:_id", auth, async (req, res) => {
       });
     }
 
-    // Check if the product already exists in the cart
-    const existingProductIndex = cart.items.findIndex(
-      (item) => item.productId._id == productId
-    );
+    if (cart) {
+      // Check if the product already exists in the cart
+      const existingProductIndex = cart.items.findIndex(
+        (item) => item.productId._id == productId
+      );
 
-    if (existingProductIndex !== -1) {
-      // If the product already exists, update its quantity
-      cart.items[existingProductIndex].quantity = parseInt(quantity);
-      cart.items[existingProductIndex].total =
-        cart.items[existingProductIndex].quantity * productDetails.price;
+      if (existingProductIndex !== -1) {
+        // If the product already exists, update its quantity
+        cart.items[existingProductIndex].quantity = parseInt(quantity);
+        cart.items[existingProductIndex].total =
+          cart.items[existingProductIndex].quantity * productDetails.price;
+      } else {
+        // If the product doesn't exist, add it to the cart
+        cart.items.push({
+          customerId: customerId,
+          productId: productId,
+          quantity: quantity,
+          price: productDetails.price,
+          total: parseInt(productDetails.price * quantity),
+        });
+      }
+
+      // Update subtotal
+      cart.subTotal = cart.items.reduce((acc, item) => acc + item.total, 0);
     } else {
-      // If the product doesn't exist, add it to the cart
-      cart.items.push({
-        productId: productId,
-        quantity: quantity,
-        price: productDetails.price,
-        total: parseInt(productDetails.price * quantity),
-      });
+      // Create a new cart if it doesn't exist
+      const cartData = {
+        customerId: customerId,
+        items: [
+          {
+            productId: productId,
+            quantity: quantity,
+            total: parseInt(productDetails.price * quantity),
+            price: productDetails.price,
+          },
+        ],
+        subTotal: parseInt(productDetails.price * quantity),
+      };
+      cart = await Cart.create(cartData);
     }
 
-    // Update subtotal
-    cart.subTotal = cart.items.reduce((acc, item) => acc + item.total, 0);
-
-    // Save the updated cart
-    const data = await cart.save();
-
+    let data = await cart.save();
     res.status(200).json({
       type: "success",
-      msg: "Process successful",
+      mgs: "Process successful",
       data: data,
     });
   } catch (err) {
@@ -202,7 +195,7 @@ router.post("/addToCart/:_id", auth, async (req, res) => {
 //   }
 // });
 
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const cart = await cartRepository.cart();
     if (!cart) {
@@ -225,7 +218,7 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-router.delete("/emptyCart", auth, async (req, res) => {
+router.delete("/emptyCart", async (req, res) => {
   try {
     let cart = await cartRepository.cart();
     cart.items = [];
