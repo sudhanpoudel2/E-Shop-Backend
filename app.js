@@ -8,7 +8,7 @@ import categoryRouter from "./routers/category.routers.js";
 import adminRouter from "./routers/admin.routers.js";
 import cartRouter from "./routers/cart.routers.js";
 import customerRouter from "./routers/customer.router.js";
-import awthJwt from "./helper/jwt.js";
+// import awthJwt from "./helper/jwt.js";
 // import MongoStore from "connect-mongo";
 // import session, { Session } from "express-session";
 
@@ -24,7 +24,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(morgan("tiny"));
-app.use(awthJwt());
+// app.use(awthJwt());
 app.use(errorHandler);
 
 //routes

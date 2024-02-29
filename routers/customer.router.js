@@ -3,11 +3,11 @@ import { Customer } from "../models/customer.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { OrderItem } from "../models/orderItem.model.js";
-import auth from "../middleware/auth.js";
+// import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
   const customer = await Customer.find();
 
   if (!customer) {
@@ -45,26 +45,26 @@ router.post("/login", async (req, res) => {
   // const customerId = req.body;
 
   try {
-    const customer = await Customer.findOne({ email });
+    const customerData = await Customer.findOne({ email });
 
-    if (!customer) {
+    if (!customerData) {
       return res.status(400).send("The user not found");
     }
 
-    const passwordMatch = await bcrypt.compare(password, customer.password);
+    const passwordMatch = await bcrypt.compare(password, customerData.password);
 
     if (passwordMatch) {
       const token = jwt.sign(
         {
-          customerId: customer._id,
-          isAdmin: customer.isAdmin,
+          customerId: customerData._id,
+          isAdmin: customerData.isAdmin,
         },
         "thedogisbeautiful"
       );
-      console.log(customer._id);
+      console.log(customerData._id);
       // const accessToken = await generateAccessTOken({ customer: customer });
       return res.status(202).send({
-        customer: customer.email,
+        customer: customerData.email,
         token: token,
         // customer: customer,
         // accessToken: accessToken,
