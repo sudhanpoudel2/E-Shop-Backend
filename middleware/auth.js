@@ -1,6 +1,3 @@
-// import jwt from "jsonwebtoken";
-// import { Customer } from "../models/customer.model.js";
-
 // const verifyCustomer = function (req, res, next) {
 //   try {
 //     if (req.headers.authorization) {
@@ -23,34 +20,6 @@
 
 import jwt from "jsonwebtoken";
 import { Customer } from "../models/customer.model.js";
-
-// const verifyCustomer = function (req, res, next) {
-//   try {
-//     if (req.headers.authorization) {
-//       const authorizationHeader = req.headers.authorization;
-//       const tokenIndex = authorizationHeader.indexOf("Bearer ");
-
-//       if (tokenIndex !== -1) {
-//         const token = authorizationHeader.substring(tokenIndex + 7);
-//         const customertoken = jwt.verify(token, "thedogisbeautiful");
-
-//         Customer.findOne({ _id: customertoken.customerId }).then(function (
-//           customerData
-//         ) {
-//           console.log('CUSTOMER::'+customerData)
-//           // req.customerInfo = customerData;
-//           next();
-//         });
-//       } else {
-//         return res.status(400).json({ mesg: "Bearer token missing" });
-//       }
-//     } else {
-//       return res.status(400).json({ mesg: "Authorization header missing" });
-//     }
-//   } catch (e) {
-//     res.status(400).json({ error: e });
-//   }
-// };
 
 export const verifyCustomer = function (req, res, next) {
   try {
@@ -89,12 +58,3 @@ export const verifyCustomer = function (req, res, next) {
     return res.status(400).json({ error: e.message });
   }
 };
-
-// const onlyCustomer = function (req, res, next) {
-//   if (req.isAdmin == false) {
-//     return res.status(400).json({ message: "User access denied" });
-//   }
-//   next();
-// };
-
-// export default verifyCustomer;
