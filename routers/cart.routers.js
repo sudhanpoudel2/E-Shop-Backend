@@ -151,4 +151,64 @@ router.post(
   }
 );
 
+router.get("/getCart", verifyCustomer, async (req, res) => {
+  try {
+    // Retrieve the user's cart from the database based on the user's ID
+    const cart = await Cart.findOne({ customerId: req.customerInfo._id });
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found for this user" });
+    }
+
+    res.status(200).json({ cart });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete(
+  "/removeFromCart/:productId",
+  verifyCustomer,
+  async (req, res) => {
+    try {
+      const productId = req.params.productId;
+
+      // Retrieve the user's cart from the database based on the user's ID
+      let cart = await Cart.findOne({ customerId: req.customerInfo._id });
+
+      if (!cart) {
+        return res
+          .status(404)
+          .json({ message: "Cart not found for this user" });
+      }
+
+      // Check if the product exists in the cart
+      const existingItemIndex = cart.items.findIndex(
+        (item) => item.productId.toString() === productId
+      );
+
+      if (existingItemIndex === -1) {
+        return res.status(404).json({ message: "Product not found in cart" });
+      }
+
+      // Remove the product from the cart
+      cart.items.splice(existingItemIndex, 1);
+
+      // Update the subtotal of the cart
+      cart.subTotal = cart.items.reduce((acc, item) => acc + item.total, 0);
+
+      // Save the updated cart back to the database
+      await cart.save();
+
+      res
+        .status(200)
+        .json({ message: "Product removed from cart successfully", cart });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
 export default router;
