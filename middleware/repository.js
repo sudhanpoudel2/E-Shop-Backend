@@ -1,4 +1,4 @@
-import Cart from "../models/cart.model.js";
+import { Cart } from "../models/cart.model.js";
 
 const cart = async () => {
   const carts = await Cart.find().populate({

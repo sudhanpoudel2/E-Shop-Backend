@@ -8,13 +8,13 @@ import categoryRouter from "./routers/category.routers.js";
 import adminRouter from "./routers/admin.routers.js";
 import cartRouter from "./routers/cart.routers.js";
 import customerRouter from "./routers/customer.router.js";
+import orderRouter from "./routers/order.routers.js";
 // import awthJwt from "./helper/jwt.js";
 // import MongoStore from "connect-mongo";
 // import session, { Session } from "express-session";
 
 // import cors from "cors";
 import errorHandler from "./helper/error.handler.js";
-import orderRouter from "./routers/cart.routers.js";
 
 dotenv.config({
   path: "",

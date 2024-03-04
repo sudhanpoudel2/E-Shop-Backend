@@ -1,7 +1,7 @@
 import cartRepository from "../middleware/repository.js";
 import { Product } from "../models/product.model.js";
 import express from "express";
-import Cart from "../models/cart.model.js";
+import { Cart } from "../models/cart.model.js";
 // import verifyCustomer,onlyC from "../middleware/auth.js";
 // import { verifyCustomer, onlyCustomer } from "../middleware/auth.js";
 // import auth from "../middleware/auth.js";

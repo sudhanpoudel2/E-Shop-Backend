@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
-import { Customer } from "../models/customer.model.js";
 
-export const verifyCustomer = function (req, res, next) {
+export const verifyAdmin = function (req, res, next) {
   try {
     console.log("AUTHENTICATION HEADER:", req.headers.authorization);
 
@@ -17,12 +16,12 @@ export const verifyCustomer = function (req, res, next) {
       }
 
       const token = authHeaderParts[1];
-      const customertoken = jwt.verify(token, "thedogisbeautiful");
-      req.customerInfo = { _id: customertoken.customerId }; // Assuming customer ID is stored in the JWT payload
-      console.log("USER ID IS:::", req.customerInfo);
+      const usertoken = jwt.verify(token, "thedogisbeautiful");
+      req.userInfo = { _id: usertoken.userId }; // Assuming customer ID is stored in the JWT payload
+      console.log("USER ID IS:::", req.userInfo);
 
       // Check if the user is an admin or a customer
-      if (customertoken.isAdmin) {
+      if (!usertoken.isAdmin) {
         console.log("User is an admin");
         return res
           .status(403)

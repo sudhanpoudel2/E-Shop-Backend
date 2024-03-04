@@ -2,7 +2,13 @@ import mongoose, { Schema } from "mongoose";
 
 const orderSchema = new Schema(
   {
-    orderItem: [{ type: mongoose.Schema.Types.ObjectId, ref: "OrderItem" }],
+    cartItems: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "OrderItem",
+        required: true,
+      },
+    ],
     shippingAdderss: {
       type: String,
       required: true,

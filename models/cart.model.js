@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-let ItemSchema = new Schema(
+let cartItemSchema = new Schema(
   {
     productId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -24,9 +24,9 @@ let ItemSchema = new Schema(
   }
 );
 
-const CartSchema = new Schema(
+const cartSchema = new Schema(
   {
-    items: [ItemSchema],
+    cartItems: [cartItemSchema],
     subTotal: {
       default: 0,
       type: Number,
@@ -40,5 +40,5 @@ const CartSchema = new Schema(
     timestamps: true,
   }
 );
-const Cart = mongoose.model("Cart", CartSchema);
-export default Cart;
+export const Cart = mongoose.model("Cart", cartSchema);
+// export default Cart;
