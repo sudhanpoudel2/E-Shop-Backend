@@ -29,7 +29,7 @@ const customerSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    // cart: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    // cart: [{ type: mongoose.Schema.Types.ObjectId, ref: "Cart" }],
   },
   { timestamps: true }
 );

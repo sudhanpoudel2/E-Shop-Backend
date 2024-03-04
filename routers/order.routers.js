@@ -1,71 +1,106 @@
 import express from "express";
-import jwt from "jsonwebtoken";
-import { Customer } from "../models/customer.model.js";
 import { Order } from "../models/order.model.js";
 import { Cart } from "../models/cart.model.js";
-import { OrderItem } from "../models/orderItem.model.js";
+import { Product } from "../models/product.model.js";
 import { verifyCustomer } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// POST route for ordering items
-router.post("/", verifyCustomer, async (req, res) => {
+router.post("/addOrder", verifyCustomer, async function (req, res) {
   try {
     // Find the customer's cart
     const customerCart = await Cart.findOne({
       customerId: req.customerInfo._id,
-    }).populate("cartItems");
+    });
     console.log(customerCart);
 
+    // Ensure the customer has a cart
     if (!customerCart) {
       return res.status(404).json({ error: "Customer's cart not found" });
     }
 
-    // Create order items from the cart items
-    const orderItems = [];
-    for (const cartItem of customerCart.cartItems) {
-      const orderItem = new OrderItem({
-        product: cartItem.product,
-        quantity: cartItem.quantity,
-      });
-      await orderItem.save();
-      orderItems.push(orderItem._id);
-    }
-
-    // Calculate total price based on order items
-    const totalPrice = orderItems.reduce((total, orderItemId) => {
-      const orderItem = customerCart.cartItems.find((item) =>
-        item._id.equals(orderItemId)
-      );
-      return total + orderItem.product.price * orderItem.quantity;
-    }, 0);
-
-    // Create the order
+    // Create the order with the customer's cart
     const order = new Order({
-      cartItems: orderItems,
+      cart: customerCart._id,
       shippingAddress: req.body.shippingAddress,
       city: req.body.city,
       zip: req.body.zip,
       country: req.body.country,
       contact: req.body.contact,
-      status: "Pending",
-      totalPrice: totalPrice,
-      customer: req.customerInfo._id,
+      status: "Ordered",
+      dateOrder: new Date(),
     });
 
     // Save the order
     const savedOrder = await order.save();
 
-    // Clear the customer's cart
-    customerCart.cartItems = [];
-    await customerCart.save();
-
-    res.status(201).json(savedOrder);
+    // Send the response
+    res.status(201).json({ order: savedOrder });
   } catch (error) {
-    console.error("Error ordering items:", error);
-    res.status(500).json({ error: "An error occurred while ordering items" });
+    console.error("Error creating order:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the order" });
   }
 });
+
+// router.post("/", verifyCustomer, async (req, res) => {
+//   try {
+//     // Find the customer's cart
+//     const customerCart = await Cart.findOne({
+//       customerId: req.customerInfo._id,
+//     }).populate("cartItems");
+//     console.log(customerCart);
+
+//     if (!customerCart) {
+//       return res.status(404).json({ error: "Customer's cart not found" });
+//     }
+
+//     // Create order items from the cart items
+//     const orderItems = [push.Cart()];
+//     for (const cartItem of customerCart.cartItems) {
+//       const orderItem = new OrderItem({
+//         product: cartItem.product,
+//         quantity: cartItem.quantity,
+//       });
+//       await orderItem.save();
+//       orderItems.push(orderItem._id);
+//     }
+
+//     // Calculate total price based on order items
+//     const totalPrice = orderItems.reduce((total, orderItemId) => {
+//       const orderItem = customerCart.cartItems.find((item) =>
+//         item._id.equals(orderItemId)
+//       );
+//       return total + orderItem.product.price * orderItem.quantity;
+//     }, 0);
+
+//     // Create the order
+//     const order = new Order({
+//       cartItems: orderItems,
+//       shippingAddress: req.body.shippingAddress,
+//       city: req.body.city,
+//       zip: req.body.zip,
+//       country: req.body.country,
+//       contact: req.body.contact,
+//       status: "Pending",
+//       totalPrice: totalPrice,
+//       customer: req.customerInfo._id,
+//     });
+
+//     // Save the order
+//     const savedOrder = await order.save();
+
+//     // Clear the customer's cart
+//     customerCart.cartItems = [];
+//     await customerCart.save();
+
+//     res.status(201).json(savedOrder);
+//   } catch (error) {
+//     console.error("Error ordering items:", error);
+//     res.status(500).json({ error: "An error occurred while ordering items" });
+//   }
+// });
 
 export default router;
 
