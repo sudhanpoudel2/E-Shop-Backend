@@ -63,6 +63,8 @@ router.get("/orders", verifyCustomer, async function (req, res) {
   }
 });
 
+export default router;
+
 // router.post("/", verifyCustomer, async (req, res) => {
 //   try {
 //     // Find the customer's cart
@@ -120,8 +122,6 @@ router.get("/orders", verifyCustomer, async function (req, res) {
 //     res.status(500).json({ error: "An error occurred while ordering items" });
 //   }
 // });
-
-export default router;
 
 // import express from "express";
 // import { Order } from "../models/order.model.js";

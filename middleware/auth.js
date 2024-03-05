@@ -18,6 +18,7 @@ export const verifyCustomer = function (req, res, next) {
 
       const token = authHeaderParts[1];
       const customertoken = jwt.verify(token, "thedogisbeautiful");
+      // console.log("id", req.customerInfo);
       req.customerInfo = { _id: customertoken.customerId }; // Assuming customer ID is stored in the JWT payload
       console.log("USER ID IS:::", req.customerInfo);
 
