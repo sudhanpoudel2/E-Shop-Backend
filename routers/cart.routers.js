@@ -122,7 +122,9 @@ router.post(
         // If the product doesn't exist, add it to the cart
         const productDetails = await Product.findById(productId);
         if (!productDetails) {
-          return res.status(404).json({ message: "Product not found" });
+          return res
+            .status(404)
+            .json({ message: "Product not found", data: {} });
         }
 
         const newItem = {
@@ -142,7 +144,7 @@ router.post(
       await cart.save();
 
       res
-        .status(200)
+        .status(201)
         .json({ message: "Product added to cart successfully", cart });
     } catch (error) {
       console.error("Error:", error);
@@ -180,7 +182,7 @@ router.delete(
       if (!cart) {
         return res
           .status(404)
-          .json({ message: "Cart not found for this user" });
+          .json({ message: "Cart not found for this user", data: {} });
       }
 
       // Check if the product exists in the cart
@@ -205,8 +207,11 @@ router.delete(
         .status(200)
         .json({ message: "Product removed from cart successfully", cart });
     } catch (error) {
-      console.error("Error:", error);
-      res.status(500).json({ error: "Internal server error" });
+      // console.error("Error:", error);
+      res.status(500).json({
+        Error: error,
+        message: "An error while deleted product from cart",
+      });
     }
   }
 );

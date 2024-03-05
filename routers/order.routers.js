@@ -16,7 +16,9 @@ router.post("/addOrder", verifyCustomer, async function (req, res) {
 
     // Ensure the customer has a cart
     if (!customerCart) {
-      return res.status(404).json({ error: "Customer's cart not found" });
+      return res
+        .status(404)
+        .json({ message: "Customer's cart not found", data: {} });
     }
 
     // Create the order with the customer's cart
@@ -35,12 +37,29 @@ router.post("/addOrder", verifyCustomer, async function (req, res) {
     const savedOrder = await order.save();
 
     // Send the response
-    res.status(201).json({ order: savedOrder });
+    res.status(201).json({ message: "order sucessfully", order: savedOrder });
   } catch (error) {
-    console.error("Error creating order:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while creating the order" });
+    // console.error({Error:error,message:""});
+    res.status(400).json({
+      Error: error,
+      message: "An error occurred while creating the order",
+    });
+  }
+});
+
+router.get("/orders", verifyCustomer, async function (req, res) {
+  try {
+    // Find orders belonging to the current customer
+    const orders = await Order.find({ customer: req.customerInfo._id });
+
+    // Send the response
+    res.status(200).json({ message: "Order found ", data: orders });
+  } catch (error) {
+    // console.error("Error retrieving orders:", error);
+    res.status(400).json({
+      Error: error,
+      message: "An error occurred while retrieving orders",
+    });
   }
 });
 

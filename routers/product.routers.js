@@ -68,20 +68,28 @@ router.get("/pag", async (req, res) => {
 
 router.get("/", async (req, res) => {
   // yesto garda product ma product name ra image matra show hunchha and id remove hunchha
-  const productList = await Product.find();
-  if (!productList) {
-    res.status(500).json({ success: false });
+  try {
+    const productList = await Product.find();
+    if (!productList) {
+      res.status(400).json({ message: "productList can not found", data: {} });
+    }
+    res
+      .status(200)
+      .json({ message: "productList found successfully", data: productList });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "error occur while finding productList", Error: error });
   }
-  res.send(productList);
 });
 
 router.get(":_id", (req, res) => {
   const productID = Product.findById(req.params._id);
   if (!productID) {
-    res.status(500).json({ success: false });
+    res.status(400).json({ message: "productId required", data: {} });
   }
 
-  res.send(productID);
+  res.status(200).json({ message: "find sucessfully", data: productID });
 });
 
 //Get request for only one product ID use garera
@@ -89,10 +97,12 @@ router.get("/get/count", async (req, res) => {
   console.log("hello am i working?");
   try {
     const productCount = await Product.countDocuments();
-    res.send({ productCount });
+    res.status(200).json({ message: "product count", data: productCount });
   } catch (error) {
-    console.error("Error getting product count:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    // console.error("Error getting product count:", error);
+    res
+      .status(400)
+      .json({ message: "error occured while product count", Error: error });
   }
 });
 
@@ -101,10 +111,14 @@ router.get("/get/featured/:count", async (req, res) => {
   const count = req.params.count ? req.params.count : 0;
   try {
     const product = await Product.find({ isFeatured: true }).limit(+count); // count value url ma jati deko chha teti matra product dekhaunchha
-    res.send({ product });
+    res
+      .status(200)
+      .json({ message: "feature count successfully", data: product }); // res.send({ product });
   } catch (error) {
-    console.error("Error getting product count:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    // console.error("Error getting product count:", error);
+    res
+      .status(400)
+      .json({ Error: error, message: "Error occured while feature counts" });
   }
 });
 
@@ -113,7 +127,8 @@ router.post("/", uploadOption.single("image"), async (req, res) => {
 
   //catetory ID bata (category aanushar product add garne) product add garne
   const category = await Category.findById(req.body.category);
-  if (!category) return res.status(404).send("Invalid Category");
+  if (!category)
+    return res.status(404).json({ message: "Invalid Category", data: {} });
 
   // const file = req.file;
   // if(!file) return res.status(404).send('No image in request');
@@ -135,18 +150,20 @@ router.post("/", uploadOption.single("image"), async (req, res) => {
   });
   try {
     const productSave = await product.save();
-    return res.status(201).json({ success: true, product: productSave });
-  } catch (error) {
-    console.error("Error saving the product:", error);
     return res
-      .status(500)
-      .json({ success: false, error: "The product cannot be created" });
+      .status(201)
+      .json({ message: "product created successfully", data: productSave });
+  } catch (error) {
+    // console.error("Error saving the product:", error);
+    return res
+      .status(406)
+      .json({ Error: error, message: "The product cannot be created" });
   }
 });
 
 router.put("/:_id", async (req, res) => {
   if (!mongoose.isValidObjectId(req.params._id)) {
-    return res.status(500).send("Invalid Product Id");
+    return res.status(405).json({ message: "Invalid Product Id" });
   }
   const productUpdate = await Product.findByIdAndUpdate(req.params._id, {
     name: req.body.name,
@@ -163,9 +180,13 @@ router.put("/:_id", async (req, res) => {
   });
 
   if (!productUpdate)
-    return res.status(400).send("the product can not be created!");
+    return res
+      .status(406)
+      .json({ message: "the product can not be created!", data: {} });
 
-  res.send(productUpdate);
+  res
+    .status(200)
+    .json({ message: "product update successfully", data: productUpdate });
 });
 
 router.delete("/:_id", async (req, res) => {
@@ -176,15 +197,17 @@ router.delete("/:_id", async (req, res) => {
     if (product) {
       return res
         .status(200)
-        .json({ success: true, message: "The product is deleted!" });
+        .json({ data: product, message: "The product is deleted!" });
     } else {
       return res
         .status(404)
-        .json({ success: false, message: "The product is not found" });
+        .json({ data: {}, message: "The product is not found" });
     }
   } catch (err) {
-    console.error("Error during deletion:", err);
-    return res.status(400).json({ success: false, error: err.message });
+    // console.error("Error during deletion:", err);
+    return res
+      .status(400)
+      .json({ Error: err, message: "error occured while deleting product" });
   }
 });
 
@@ -193,7 +216,7 @@ router.put(
   uploadOption.array("images", 10),
   async (req, res) => {
     if (!mongoose.isValidObjectId(req.params._id)) {
-      return res.status(500).send("Invalid Product Id");
+      return res.status(406).json({ message: "Invalid Product Id" });
     }
 
     const files = req.files;
@@ -208,9 +231,13 @@ router.put(
       images: imagePaths,
     });
     if (!productUpdate)
-      return res.status(400).send("the product can not be created!");
+      return res
+        .status(400)
+        .json({ message: "the product can not be created!", data: {} });
 
-    res.send(productUpdate);
+    res
+      .status(200)
+      .json({ message: "product update successfully", data: productUpdate });
   }
 );
 

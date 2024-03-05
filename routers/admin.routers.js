@@ -11,22 +11,28 @@ dotenv.config({
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const userList = await User.find(); //.select('-passwordHash');//password na dekhauna
+  try {
+    const userList = await User.find({}); //.select('-passwordHash');//password na dekhauna
 
-  if (!userList) {
-    res.status(500).json({ success: false });
+    if (!userList) {
+      res.status(400).json({ message: "userlist not found", data: {} });
+    }
+    res.status(200).json({ message: "user found", data: userList });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: error, message: "error occur while finding userList" });
   }
-  res.send(userList);
 });
 
 router.get("/:_id", async (req, res) => {
   const user = await User.findById(req.params._id).select("-passwordHash");
   try {
-    res.send(user);
+    res.status(200).json({ message: "user find", data: user });
   } catch (error) {
     return res
-      .status(500)
-      .send({ success: false, error: "user is not created" });
+      .status(404)
+      .json({ Error: error, message: "user is not created" });
   }
 });
 
@@ -48,10 +54,10 @@ router.post("/", async (req, res) => {
     const userSave = await user.save();
     return res.status(201).json({ success: true, user: userSave });
   } catch (error) {
-    console.error("Error saving the product:", error);
+    // console.error("Error saving the product:", error);
     return res
-      .status(500)
-      .json({ success: false, error: "User cannot be created" });
+      .status(406)
+      .json({ Error: error, message: "User cannot be created" });
   }
 });
 
@@ -70,12 +76,12 @@ router.post("/register", async (req, res) => {
   });
   try {
     const userSave = await user.save();
-    return res.status(201).json({ success: true, user: userSave });
+    return res.status(201).json({ message: "User created", user: userSave });
   } catch (error) {
     console.error("Error saving the product:", error);
     return res
-      .status(500)
-      .json({ success: false, error: "User cannot be created" });
+      .status(406)
+      .json({ Error: error, message: "User cannot be created" });
   }
 });
 router.post("/login", async (req, res) => {
@@ -84,7 +90,7 @@ router.post("/login", async (req, res) => {
   const secret = "thedogisbeautiful";
 
   if (!user) {
-    return res.status(400).send("The user not found");
+    return res.status(404).json({ message: "The user not found", data: {} });
   }
 
   // Compare the plain text password from the request with the hashed password from the database
@@ -99,9 +105,9 @@ router.post("/login", async (req, res) => {
     );
     console.log(user._id);
 
-    res.status(202).send({ user: user.email, token: token });
+    res.status(202).json({ user: user.email, token: token });
   } else {
-    res.status(400).send("Password is wrong");
+    res.status(400).json({ message: "Password is wrong" });
   }
 });
 
